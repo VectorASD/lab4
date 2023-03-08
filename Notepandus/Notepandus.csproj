@@ -10,6 +10,11 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
     <None Remove=".gitignore" />
+    <None Remove="Assets\back_folder.png" />
+    <None Remove="Assets\drive.png" />
+    <None Remove="Assets\file.png" />
+    <None Remove="Assets\folder.png" />
+    <None Remove="Assets\sys_drive.png" />
     <None Remove="Assets\vectorasd-logo.ico" />
   </ItemGroup>
 
