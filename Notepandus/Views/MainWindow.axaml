@@ -7,8 +7,12 @@
 		Width="500" Height="700"
         x:Class="Notepandus.Views.MainWindow"
         Icon="/Assets/vectorasd-logo.ico"
-        Title="Notepandus">
+        Title="Notepandus"
+		xmlns:conv="clr-namespace:Notepandus.Views.Converters">
 
+	<Window.Resources>
+		<conv:FileTypeToImage x:Key="myConverter"/>
+	</Window.Resources>
 
 	<Window.Styles>
 		<Style Selector="Button">
@@ -46,7 +50,7 @@
 				<ListBox.ItemTemplate>
 					<DataTemplate>
 						<Grid ColumnDefinitions="*,9*">
-							<Image Width="40" Height="40" Source="{Binding Icon}" Margin="5 0 5 0"/>
+							<Image Width="40" Height="40" Source="{Binding Type, Converter={StaticResource myConverter}}" Margin="5 0 5 0"/>
 							<TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
 						</Grid>
 					</DataTemplate>

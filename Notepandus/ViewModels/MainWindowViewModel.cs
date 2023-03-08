@@ -24,10 +24,10 @@ namespace Notepandus.ViewModels {
             string? sys_d = Path.GetPathRoot(system);
             fileList.Clear();
             foreach (DriveInfo drive in drives)
-                fileList.Add(new FileItem(drive.Name == sys_d ? "sys_drive" : "drive", drive.Name == sys_d ? SysDrive : Drive, drive.Name));
+                fileList.Add(new FileItem(drive.Name == sys_d ? SysDrive : Drive, drive.Name));
         }
         private void LoadDir() {
-            DirectoryInfo directory = new DirectoryInfo(cur_dir);
+            DirectoryInfo directory = new(cur_dir);
             NaturalComparer nc = new();
 
             List<string> dirs = new();
@@ -39,15 +39,31 @@ namespace Notepandus.ViewModels {
             files.Sort(nc);
 
             fileList.Clear();
-            fileList.Add(new FileItem("back_folder", BackFolder, ".."));
-            foreach (var name in dirs) fileList.Add(new FileItem("folder", Folder, name));
-            foreach (var name in files) fileList.Add(new FileItem("file", FILE, name));
+            fileList.Add(new FileItem(BackFolder, ".."));
+            foreach (var name in dirs) fileList.Add(new FileItem(Folder, name));
+            foreach (var name in files) fileList.Add(new FileItem(FILE, name));
         }
         private void Loader(bool start = false) {
             FileBox = "";
+            // Не знаю, зачем каждый раз при переходе из режима блокнота
+            // в режим файлового эксплорера надо сбрасывать текущую директорию,
+            // но т.к. вроде бы у Вас так было в видео, то воть:
             if (start) cur_dir = Directory.GetCurrentDirectory();
             if (cur_dir == "") LoadDisks();
             else LoadDir();
+        }
+        private void UpdButtonMode() { // Сильноукороченная версия DoubleTap для конкретно этой узкоспециализированной задачки
+            if (openMode) return; // Нет смысла что-то обновлять в режиме открытия, а не сохранения файла...
+
+            string path = Path.Combine(cur_dir, fileBox);
+            if (!File.Exists(path)) {
+                ButtonMode = "Открыть";
+                return;
+            }
+
+            var attrs = File.GetAttributes(path);
+            bool is_file = (attrs & FileAttributes.Archive) != 0;
+            ButtonMode = is_file ? "Сохранить" : "Открыть";
         }
 
         private bool explorerMode = false;
@@ -67,7 +83,7 @@ namespace Notepandus.ViewModels {
             if (explorerMode) return;
             ExplorerMode = true;
             Loader(true);
-            ButtonMode = "Сохранить";
+            ButtonMode = "Открыть";
             openMode = false;
         }
 
@@ -82,6 +98,7 @@ namespace Notepandus.ViewModels {
         private void SelectItem(FileItem item) {
             if (item == null) return;
             FileBox = item.Name;
+            UpdButtonMode();
         }
 
         private void Message(string msg) {
@@ -132,14 +149,17 @@ namespace Notepandus.ViewModels {
                 if (openMode) {
                     ContentBox = File.ReadAllText(path);
                     ExplorerMode = false;
-                } else // saveMode
-                    Message("Такой файл уже существует: ");
+                } else { // saveMode
+                    //Message("Такой файл уже существует: "); Посмотрел Ваш ролик... перезапись нужна ;'-}
+                    File.WriteAllText(path, contentBox);
+                    ExplorerMode = false;
+                }
             }
         }
 
         string contentBox = "";
         string fileBox = "";
-        FileItem selectedItem = new FileItem("file", FILE, "?");
+        FileItem selectedItem = new(FILE, "?");
 
         public string ContentBox { get => contentBox; set => this.RaiseAndSetIfChanged(ref contentBox, value); }
         public string FileBox { get => fileBox; set => this.RaiseAndSetIfChanged(ref fileBox, value); }
