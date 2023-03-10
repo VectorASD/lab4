@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls.Shapes;
+using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 using Notepandus.Models;
 using ReactiveUI;

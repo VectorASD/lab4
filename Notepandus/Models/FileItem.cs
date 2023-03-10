@@ -1,4 +1,4 @@
-﻿namespace Notepandus.Models {
+namespace Notepandus.Models {
     public enum FileTypes { SysDrive, Drive, BackFolder, Folder, FILE }
 
     public class FileItem {
